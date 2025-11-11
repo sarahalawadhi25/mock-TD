@@ -1,0 +1,10 @@
+[
+  { "role": "Coordinator", "skill": "Communication", "target": "Intermediate" },
+  { "role": "Coordinator", "skill": "Excel", "target": "Beginner" },
+
+  { "role": "Specialist", "skill": "Communication", "target": "Advanced" },
+  { "role": "Specialist", "skill": "Excel", "target": "Intermediate" },
+
+  { "role": "Senior Specialist", "skill": "Project Planning", "target": "Intermediate" },
+  { "role": "Senior Specialist", "skill": "Excel", "target": "Advanced" }
+]
