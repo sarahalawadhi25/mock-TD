@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Skill Map Demo</title>
+</head>
+<body>
+<h2>Skill Map</h2>
+<div id="app"></div>
+
+<script>
+async function load() {
+  const skills = await fetch('../data/skills.json').then(r => r.json());
+  const employees = await fetch('../data/employees.json').then(r => r.json());
+  const targets = await fetch('../data/targets.json').then(r => r.json());
+
+  const order = ["None","Beginner","Intermediate","Advanced","Expert"];
+
+  function compare(current, expected) {
+    return order.indexOf(current) >= order.indexOf(expected) ? "OK" : "Needs Development";
+  }
+
+  const app = document.getElementById('app');
+
+  employees.forEach(person => {
+    const relevantSkills = skills.filter(s => s.employee === person.name);
+    let html = "<h3>" + person.name + " (" + person.role + ")</h3>";
+    html += "<table border='1' cellpadding='4'><tr><th>Skill</th><th>Current</th><th>Target</th><th>Status</th></tr>";
+
+    relevantSkills.forEach(s => {
+      const target = targets.find(t => t.role === person.role && t.skill === s.skill);
+      if (!target) return;
+      const status = compare(s.level, target.target);
+      html += "<tr><td>" + s.skill + "</td><td>" + s.level + "</td><td>" + target.target + "</td><td>" + status + "</td></tr>";
+    });
+
+    html += "</table><br>";
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    app.appendChild(container);
+  });
+}
+
+load();
+</script>
+</body>
+</html>
