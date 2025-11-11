@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Skill Map + Development Plan</title>
+  <style>
+    table { border-collapse: collapse; margin-bottom: 20px; }
+    th, td { border: 1px solid #000; padding: 6px; }
+    .ok { background: #d9ffd9; }
+    .need { background: #ffd9d9; }
+    .mis { background: #fff3b0; }
+    .plan { border:1px solid #000; padding:10px; margin:10px 0; }
+  </style>
+</head>
+<body>
+<h2>Skill Map + Development Plan</h2>
+<div id="app"></div>
+
+<script>
+async function load() {
+  const skills = await fetch('data/skills.json').then(r => r.json());
+  const employees = await fetch('data/employees.json').then(r => r.json());
+  const targets = await fetch('data/targets.json').then(r => r.json());
+  const manager = await fetch('data/manager.json').then(r => r.json());
+  const actions = await fetch('data/actions.json').then(r => r.json());
+
+  const order = ["None","Beginner","Intermediate","Advanced","Expert"];
+
+  function gapLevel(current, target) {
+    return order.indexOf(target) - order.indexOf(current);
+  }
+
+  function nextStep(skill, current, target) {
+    const key = current + "_to_" + target;
+    const item = actions.find(a => a.skill === skill && a.hasOwnProperty(key));
+    return item ? item[key] : "Define with manager.";
+  }
+
+  const app = document.getElementById('app');
+
+  employees.forEach(person => {
+    const personSkills = skills.filter(s => s.employee === person.name);
+    const managerSkills = manager.filter(m => m.employee === person.name);
+
+    let html = "<h3>" + person.name + " (" + person.role + ")</h3>";
+    html += "<table><tr><th>Skill</th><th>Employee</th><th>Manager</th><th>Target</th><th>Gap</th><th>Plan</th></tr>";
+
+    personSkills.forEach(s => {
+      const t = targets.find(x => x.role === person.role && x.skill === s.skill);
+      if (!t) return;
+      
+      const ms = managerSkills.find(m => m.skill === s.skill);
+      const managerLevel = ms ? ms.level : s.level;
+
+      const g = gapLevel(managerLevel, t.target);
+      const cls = g > 0 ? "need" : "ok";
+      const gapValue = g > 0 ? g : 0;
+
+      const plan = g > 0 ? nextStep(s.skill, managerLevel, t.target) : "None";
+
+      html += "<tr class='" + cls + "'>" +
+        "<td>" + s.skill + "</td>" +
+        "<td>" + s.level + "</td>" +
+        "<td>" + managerLevel + "</td>" +
+        "<td>" + t.target + "</td>" +
+        "<td>" + gapValue + "</td>" +
+        "<td>" + plan + "</td>" +
+      "</tr>";
+    });
+
+    html += "</table>";
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    app.appendChild(container);
+  });
+}
+
+load();
+</script>
+</body>
+</html>
