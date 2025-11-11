@@ -1,0 +1,8 @@
+[
+  { "employee": "Ali", "skill": "Communication", "level": "Advanced" },
+  { "employee": "Ali", "skill": "Excel", "level": "Beginner" },
+  { "employee": "Sara", "skill": "Communication", "level": "Advanced" },
+  { "employee": "Sara", "skill": "Excel", "level": "Intermediate" },
+  { "employee": "Noura", "skill": "Project Planning", "level": "Intermediate" },
+  { "employee": "Noura", "skill": "Excel", "level": "Advanced" }
+]
