@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Skill Map Demo</title>
+  <title>Skill Map + Development Plan</title>
   <style>
     table { border-collapse: collapse; margin-bottom: 20px; }
     th, td { border: 1px solid #000; padding: 6px; }
@@ -12,22 +12,27 @@
   </style>
 </head>
 <body>
-<h2>Skill Map with Manager Comparison</h2>
+<h2>Skill Map + Development Plan</h2>
 <div id="app"></div>
 
 <script>
 async function load() {
   const skills = await fetch('data/skills.json').then(r => r.json());
-const employees = await fetch('data/employees.json').then(r => r.json());
-const targets = await fetch('data/targets.json').then(r => r.json());
-const manager = await fetch('data/manager.json').then(r => r.json());
-const actions = await fetch('data/actions.json').then(r => r.json());
-
+  const employees = await fetch('data/employees.json').then(r => r.json());
+  const targets = await fetch('data/targets.json').then(r => r.json());
+  const manager = await fetch('data/manager.json').then(r => r.json());
+  const actions = await fetch('data/actions.json').then(r => r.json());
 
   const order = ["None","Beginner","Intermediate","Advanced","Expert"];
 
-  function gap(current, target) {
+  function gapLevel(current, target) {
     return order.indexOf(target) - order.indexOf(current);
+  }
+
+  function nextStep(skill, current, target, actions) {
+    const key = current + "_to_" + target;
+    const item = actions.find(a => a.skill === skill && a[key]);
+    return item ? item[key] : "Define action with manager.";
   }
 
   const app = document.getElementById('app');
@@ -37,7 +42,7 @@ const actions = await fetch('data/actions.json').then(r => r.json());
     const managerSkills = manager.filter(m => m.employee === person.name);
 
     let html = "<h3>" + person.name + " (" + person.role + ")</h3>";
-    html += "<table><tr><th>Skill</th><th>Employee Level</th><th>Manager Level</th><th>Target</th><th>Status</th><th>Gap</th></tr>";
+    html += "<table><tr><th>Skill</th><th>Employee</th><th>Manager</th><th>Target</th><th>Gap</th><th>Development Action</th></tr>";
 
     personSkills.forEach(s => {
       const t = targets.find(x => x.role === person.role && x.skill === s.skill);
@@ -46,31 +51,14 @@ const actions = await fetch('data/actions.json').then(r => r.json());
       const ms = managerSkills.find(m => m.skill === s.skill);
       const managerLevel = ms ? ms.level : s.level;
 
-      const g = gap(managerLevel, t.target);
-      const status = g > 0 ? "Needs Development" : "OK";
+      const g = gapLevel(managerLevel, t.target);
       const gapValue = g > 0 ? g : 0;
 
-      let cls = g > 0 ? "need" : "ok";
-      if (managerLevel !== s.level) cls = "mis";
+      const action = g > 0 ? nextStep(s.skill, managerLevel, t.target, actions) : "No development needed";
+      const cls = g > 0 ? "need" : "ok";
 
       html += "<tr class='" + cls + "'>" +
         "<td>" + s.skill + "</td>" +
         "<td>" + s.level + "</td>" +
         "<td>" + managerLevel + "</td>" +
-        "<td>" + t.target + "</td>" +
-        "<td>" + status + "</td>" +
-        "<td>" + gapValue + "</td>" +
-      "</tr>";
-    });
-
-    html += "</table>";
-    const container = document.createElement('div');
-    container.innerHTML = html;
-    app.appendChild(container);
-  });
-}
-
-load();
-</script>
-</body>
-</html>
+        "<td>
