@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Skill Map Demo</title>
+  <style>
+    table { border-collapse: collapse; margin-bottom: 20px; }
+    th, td { border: 1px solid #000; padding: 6px; }
+    .ok { background: #d9ffd9; }
+    .need { background: #ffd9d9; }
+  </style>
 </head>
 <body>
 <h2>Skill Map</h2>
@@ -10,37 +16,43 @@
 
 <script>
 async function load() {
-  const skills = await fetch('../data/skills.json').then(r => r.json());
-  const employees = await fetch('../data/employees.json').then(r => r.json());
-  const targets = await fetch('../data/targets.json').then(r => r.json());
+  const skills = await fetch('data/skills.json').then(r => r.json());
+  const employees = await fetch('data/employees.json').then(r => r.json());
+  const targets = await fetch('data/targets.json').then(r => r.json());
 
   const order = ["None","Beginner","Intermediate","Advanced","Expert"];
-  
 
-  function compare(current, expected) {
-    return order.indexOf(current) >= order.indexOf(expected) ? "OK" : "Needs Development";
-    const order = ["None","Beginner","Intermediate","Advanced","Expert"];
-
-function gap(current, target) {
-  return order.indexOf(target) - order.indexOf(current);
-}
+  function gap(current, target) {
+    return order.indexOf(target) - order.indexOf(current);
   }
 
   const app = document.getElementById('app');
 
   employees.forEach(person => {
-    const relevantSkills = skills.filter(s => s.employee === person.name);
-    let html = "<h3>" + person.name + " (" + person.role + ")</h3>";
-    html += "<table border='1' cellpadding='4'><tr><th>Skill</th><th>Current</th><th>Target</th><th>Status</th></tr>";
+    const personSkills = skills.filter(s => s.employee === person.name);
 
-    relevantSkills.forEach(s => {
-      const target = targets.find(t => t.role === person.role && t.skill === s.skill);
-      if (!target) return;
-      const status = compare(s.level, target.target);
-      html += "<tr><td>" + s.skill + "</td><td>" + s.level + "</td><td>" + target.target + "</td><td>" + status + "</td></tr>";
+    let html = "<h3>" + person.name + " (" + person.role + ")</h3>";
+    html += "<table><tr><th>Skill</th><th>Current</th><th>Target</th><th>Status</th><th>Gap</th></tr>";
+
+    personSkills.forEach(s => {
+      const t = targets.find(x => x.role === person.role && x.skill === s.skill);
+      if (!t) return;
+
+      const g = gap(s.level, t.target);
+      const status = g > 0 ? "Needs Development" : "OK";
+      const gapValue = g > 0 ? g : 0;
+      const cls = g > 0 ? "need" : "ok";
+
+      html += "<tr class='" + cls + "'>" +
+        "<td>" + s.skill + "</td>" +
+        "<td>" + s.level + "</td>" +
+        "<td>" + t.target + "</td>" +
+        "<td>" + status + "</td>" +
+        "<td>" + gapValue + "</td>" +
+      "</tr>";
     });
 
-    html += "</table><br>";
+    html += "</table>";
     const container = document.createElement('div');
     container.innerHTML = html;
     app.appendChild(container);
