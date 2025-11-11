@@ -15,9 +15,15 @@ async function load() {
   const targets = await fetch('../data/targets.json').then(r => r.json());
 
   const order = ["None","Beginner","Intermediate","Advanced","Expert"];
+  
 
   function compare(current, expected) {
     return order.indexOf(current) >= order.indexOf(expected) ? "OK" : "Needs Development";
+    const order = ["None","Beginner","Intermediate","Advanced","Expert"];
+
+function gap(current, target) {
+  return order.indexOf(target) - order.indexOf(current);
+}
   }
 
   const app = document.getElementById('app');
