@@ -18,9 +18,11 @@
 <script>
 async function load() {
   const skills = await fetch('data/skills.json').then(r => r.json());
-  const employees = await fetch('data/employees.json').then(r => r.json());
-  const targets = await fetch('data/targets.json').then(r => r.json());
-  const manager = await fetch('data/manager.json').then(r => r.json());
+const employees = await fetch('data/employees.json').then(r => r.json());
+const targets = await fetch('data/targets.json').then(r => r.json());
+const manager = await fetch('data/manager.json').then(r => r.json());
+const actions = await fetch('data/actions.json').then(r => r.json());
+
 
   const order = ["None","Beginner","Intermediate","Advanced","Expert"];
 
